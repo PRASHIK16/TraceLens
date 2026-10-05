@@ -1,12 +1,13 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, ShieldAlert, Cpu, Eye, Network, CheckCircle2,
-  ArrowRight, Activity, History, Info, Sparkles,
-  CheckSquare, Square, Layers, FileCheck, ShieldCheck,
-  Moon, Sun, AlertTriangle, ArrowDown, ExternalLink,
-  ChevronRight, Lock, UserCheck, BarChart3, ListFilter,
-  Check, RefreshCw, Database
+  Search, ShieldAlert, Cpu, Eye, CheckCircle2,
+  ArrowRight, Activity, History, Info, Sparkles, AlertTriangle,
+  UserCheck, ExternalLink, RefreshCw, FileText, Lock, Globe,
+  Shield, Share2, Layers, Check, Copy, ChevronRight, Filter,
+  Smartphone, Monitor, Moon, Sun, Database, BarChart3,
+  CheckSquare, Square, ShieldCheck
 } from 'lucide-react';
 
 interface ProfileEndpoint {
@@ -56,9 +57,7 @@ export default function App() {
 
   // Manual Verification & Checklist state
   const [verifiedMap, setVerifiedMap] = useState<Record<string, boolean>>({});
-  const [checklists, setChecklists] = useState<Record<string, Record<string, boolean>>>({});
-  const [activeNodeHover, setActiveNodeHover] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'ALL' | 'HIGH' | 'MEDIUM' | 'LOW'>('ALL');
+  const [checklists, setChecklists] = useState<Record<string, Record<string, boolean>> >({});
 
   const pipelineStages = [
     {
@@ -241,7 +240,6 @@ export default function App() {
     setCurrentView('pipeline');
     setActiveStep(0);
 
-    // Simulate step-by-step pipeline progression
     let stepCount = 0;
     const interval = setInterval(() => {
       stepCount++;
@@ -252,17 +250,14 @@ export default function App() {
         const newAudit = generateAudit(query);
         setAuditData(newAudit);
         
-        // Initialize verified map
         const initialMap: Record<string, boolean> = {};
         newAudit.profiles.forEach(p => { initialMap[p.id] = p.verified; });
         setVerifiedMap(initialMap);
 
         setIsScanning(false);
-
-        // Save to History
         setHistory(prev => [newAudit, ...prev.filter(h => h.username !== newAudit.username)]);
       }
-    }, 600);
+    }, 500);
   };
 
   const toggleVerified = (profileId: string) => {
@@ -282,85 +277,95 @@ export default function App() {
   };
 
   useEffect(() => {
-    // Initial default scan
     handleExecuteScan('wesbos');
   }, []);
 
-  // WhatsApp Web Signature Color Palette:
-  // Dark Mode: Dark Charcoal (#111B21), Body Dark (#0B141A), Teal (#00A884), Border (#222D34)
-  // Light Mode: Pure White (#FFFFFF), Body Light (#F0F2F5), Slate (#111B21), Border (#E9EDEF)
   const bgBody = isDarkMode ? 'bg-[#0B141A] text-[#E9EDEF]' : 'bg-[#F0F2F5] text-[#111B21]';
   const bgCard = isDarkMode ? 'bg-[#111B21]' : 'bg-[#FFFFFF]';
   const bgCardAlt = isDarkMode ? 'bg-[#202C33]' : 'bg-[#F0F2F5]';
   const borderColor = isDarkMode ? 'border-[#222D34]' : 'border-[#E9EDEF]';
   const textPrimary = isDarkMode ? 'text-[#E9EDEF]' : 'text-[#111B21]';
   const textSecondary = isDarkMode ? 'text-[#8696A0]' : 'text-[#667781]';
-  const tealAccent = '#00A884';
 
   return (
     <div className={`min-h-screen font-sans antialiased transition-colors duration-200 flex flex-col ${bgBody}`}>
       
-      {}
-      <header className={`h-16 border-b sticky top-0 z-50 backdrop-blur-md px-4 md:px-8 flex items-center justify-between transition-colors ${bgCard} ${borderColor}`}>
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
-          <div className="p-2.5 rounded-xl bg-[#00A884]/15 border border-[#00A884]/30 text-[#00A884]">
-            <Cpu className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className={`font-bold text-lg tracking-tight ${textPrimary}`}>TraceLens</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded font-black uppercase tracking-wider bg-[#00A884] text-white">
-                OSINT v2.4
-              </span>
+      {/* Sticky Responsive Header */}
+      <header className={`sticky top-0 z-50 border-b px-4 py-3 shadow-md backdrop-blur-md transition-colors ${bgCard} ${borderColor}`}>
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
+              <div className="p-2.5 rounded-xl bg-[#00A884]/15 border border-[#00A884]/30 text-[#00A884]">
+                <Cpu className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className={`font-bold text-lg tracking-tight ${textPrimary}`}>TraceLens</span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-black uppercase tracking-wider bg-[#00A884] text-white">
+                    OSINT v2.4
+                  </span>
+                </div>
+                <p className={`text-[11px] font-medium ${textSecondary}`}>Digital Footprint & Identity Correlation Engine</p>
+              </div>
             </div>
-            <p className={`text-[11px] font-medium ${textSecondary}`}>Digital Footprint & Identity Correlation Engine</p>
-          </div>
-        </div>
 
-        {/* Global Search Bar & Nav Controls */}
-        <div className="flex items-center space-x-3">
-          <div className="relative hidden md:block w-72">
-            <span className={`absolute left-3.5 top-2.5 text-xs font-mono font-bold ${textSecondary}`}>@</span>
-            <input
-              type="text"
-              placeholder="Search public handle..."
-              value={searchUsername}
-              onChange={(e) => setSearchUsername(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleExecuteScan()}
-              className={`w-full text-xs font-mono font-bold pl-8 pr-4 py-2 rounded-xl border focus:outline-none transition-all ${
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className={`md:hidden p-2 rounded-xl border transition-all ${
                 isDarkMode 
-                  ? 'bg-[#202C33] border-[#222D34] text-[#E9EDEF] focus:border-[#00A884] placeholder:text-[#8696A0]' 
-                  : 'bg-[#F0F2F5] border-[#E9EDEF] text-[#111B21] focus:border-[#00A884] placeholder:text-[#667781]'
+                  ? 'bg-[#202C33] border-[#222D34] text-amber-400' 
+                  : 'bg-[#F0F2F5] border-[#E9EDEF] text-[#111B21]'
               }`}
-            />
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
           </div>
 
-          <button
-            onClick={() => handleExecuteScan()}
-            className="text-xs font-bold px-4 py-2 rounded-xl text-white transition-all duration-150 flex items-center space-x-2 shadow-sm bg-[#00A884] hover:bg-[#008f70] active:scale-95"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span className="hidden sm:inline">Run 5-Stage Audit</span>
-          </button>
+          {/* Search Bar - Visible on Mobile and Desktop */}
+          <div className="w-full md:w-auto md:min-w-[420px] flex items-center space-x-2">
+            <div className="relative flex-1">
+              <span className={`absolute left-3.5 top-2.5 text-xs font-mono font-bold ${textSecondary}`}>@</span>
+              <input
+                type="text"
+                placeholder="Search target handle (e.g. wesbos)..."
+                value={searchUsername}
+                onChange={(e) => setSearchUsername(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleExecuteScan()}
+                className={`w-full text-xs font-mono font-bold pl-8 pr-4 py-2.5 rounded-xl border focus:outline-none transition-all ${
+                  isDarkMode 
+                    ? 'bg-[#202C33] border-[#222D34] text-[#E9EDEF] focus:border-[#00A884] placeholder:text-[#8696A0]' 
+                    : 'bg-[#F0F2F5] border-[#E9EDEF] text-[#111B21] focus:border-[#00A884] placeholder:text-[#667781]'
+                }`}
+              />
+            </div>
 
-          <div className="w-px h-6 bg-gray-400/20 mx-1" />
+            <button
+              onClick={() => handleExecuteScan()}
+              className="text-xs font-bold px-4 py-2.5 rounded-xl text-white transition-all flex items-center space-x-1.5 shadow-sm bg-[#00A884] hover:bg-[#008f70] active:scale-95 whitespace-nowrap"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>Audit</span>
+            </button>
 
-          {/* Clean Light / Dark Mode Toggle */}
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            className={`p-2 rounded-xl border transition-all ${
-              isDarkMode 
-                ? 'bg-[#202C33] border-[#222D34] text-amber-400 hover:bg-[#2a3942]' 
-                : 'bg-[#F0F2F5] border-[#E9EDEF] text-[#111B21] hover:bg-gray-200'
-            }`}
-          >
-            {isDarkMode ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
-          </button>
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              className={`hidden md:block p-2.5 rounded-xl border transition-all ${
+                isDarkMode 
+                  ? 'bg-[#202C33] border-[#222D34] text-amber-400 hover:bg-[#2a3942]' 
+                  : 'bg-[#F0F2F5] border-[#E9EDEF] text-[#111B21] hover:bg-gray-200'
+              }`}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          </div>
+
         </div>
       </header>
 
-      {}
+      {/* Main Layout */}
       <div className="flex flex-1 relative">
         {/* Navigation Sidebar */}
         <aside className={`w-64 border-r p-4 hidden md:flex flex-col justify-between transition-colors ${bgCard} ${borderColor}`}>
@@ -426,13 +431,84 @@ export default function App() {
           </div>
         </aside>
 
-        {/* Content Body Area */}
+        {/* Content Body */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full space-y-8">
 
-          {}
+          {/* DASHBOARD VIEW */}
+          {currentView === 'dashboard' && auditData && (
+            <div className="space-y-8">
+              {/* Executive Summary Card */}
+              <div className={`p-6 sm:p-8 rounded-3xl border shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 ${bgCard} ${borderColor}`}>
+                <div>
+                  <div className="flex items-center space-x-3 mb-1">
+                    <h1 className={`text-2xl sm:text-3xl font-mono font-black ${textPrimary}`}>@{auditData.username}</h1>
+                    <span className="text-xs font-bold font-mono px-3 py-1 rounded-full bg-rose-500/20 text-rose-500 border border-rose-500/30">
+                      {auditData.exposureLevel} EXPOSURE
+                    </span>
+                  </div>
+                  <p className={`text-xs font-medium ${textSecondary}`}>
+                    Audit timestamp: {auditData.timestamp}
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-8">
+                  <div>
+                    <div className={`text-3xl font-black ${textPrimary}`}>{auditData.accountsFound}</div>
+                    <div className={`text-[11px] font-bold uppercase tracking-wider ${textSecondary}`}>Endpoints</div>
+                  </div>
+                  <div className="w-px h-10 bg-gray-500/20" />
+                  <div>
+                    <div className="text-3xl font-black text-[#00A884]">
+                      {Object.values(verifiedMap).filter(Boolean).length} / {auditData.profiles.length}
+                    </div>
+                    <div className={`text-[11px] font-bold uppercase tracking-wider ${textSecondary}`}>Verified</div>
+                  </div>
+                  <div className="w-px h-10 bg-gray-500/20" />
+                  <div>
+                    <div className="text-3xl font-black text-rose-500">{auditData.exposureScore}/100</div>
+                    <div className={`text-[11px] font-bold uppercase tracking-wider ${textSecondary}`}>Risk Score</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 5-Stage OSINT Pipeline Quick Nav */}
+              <div className={`p-6 sm:p-8 rounded-3xl border space-y-4 ${bgCard} ${borderColor}`}>
+                <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
+                  <h2 className={`text-lg font-bold flex items-center space-x-2 ${textPrimary}`}>
+                    <Layers className="w-5 h-5 text-[#00A884]" />
+                    <span>5-Stage OSINT Pipeline Status</span>
+                  </h2>
+                  <button
+                    onClick={() => setCurrentView('pipeline')}
+                    className="text-xs font-bold text-[#00A884] flex items-center space-x-1 hover:underline"
+                  >
+                    <span>View Interactive Pipeline</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                  {pipelineStages.map((stg) => (
+                    <div
+                      key={stg.step}
+                      onClick={() => setCurrentView('pipeline')}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all hover:scale-105 ${bgCardAlt} ${borderColor}`}
+                    >
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#00A884]/20 text-[#00A884]">
+                        {stg.badge}
+                      </span>
+                      <h3 className={`text-xs font-bold mt-2 ${textPrimary}`}>{stg.name}</h3>
+                      <p className={`text-[11px] mt-1 ${textSecondary} leading-tight`}>{stg.action}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PIPELINE VIEW */}
           {currentView === 'pipeline' && (
             <div className="space-y-8">
-              {/* Stepper Flow Banner */}
               <div className={`p-6 sm:p-8 rounded-3xl border shadow-sm space-y-6 ${bgCard} ${borderColor}`}>
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-5 border-gray-500/10">
                   <div>
@@ -453,13 +529,13 @@ export default function App() {
                         onClick={() => setCurrentView('dashboard')}
                         className="text-xs font-bold px-4 py-1.5 rounded-xl bg-[#00A884] text-white hover:bg-[#008f70] transition"
                       >
-                        View Executive Summary
+                        Executive Summary
                       </button>
                     </div>
                   )}
                 </div>
 
-                {/* Interactive 5-Step Pipeline Horizontal Stepper */}
+                {/* 5-Step Pipeline Horizontal Stepper */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                   {pipelineStages.map((stg, idx) => {
                     const isActive = isScanning ? activeStep === idx : true;
@@ -471,7 +547,7 @@ export default function App() {
                         className={`p-4 rounded-2xl border transition-all relative flex flex-col justify-between ${
                           isActive
                             ? 'bg-[#00A884]/10 border-[#00A884] shadow-md'
-                            : `${bgCardAlt} ${borderColor} opacity-80`
+                            : `${bgCardAlt}${borderColor} opacity-80`
                         }`}
                       >
                         <div>
@@ -504,7 +580,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Live Scanner Loading State */}
+              {/* Scanner Loading State */}
               {isScanning ? (
                 <div className={`p-12 rounded-3xl border text-center space-y-6 max-w-xl mx-auto shadow-lg ${bgCard} ${borderColor}`}>
                   <div className="relative w-16 h-16 mx-auto flex items-center justify-center">
@@ -534,7 +610,7 @@ export default function App() {
               ) : auditData ? (
                 <div className="space-y-8">
                   
-                  {/* Stage 1: Username Discovery */}
+                  {/* Stage 1: Discovery */}
                   <div className={`p-6 sm:p-8 rounded-3xl border space-y-4 ${bgCard} ${borderColor}`}>
                     <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
                       <div className="flex items-center space-x-3">
@@ -547,7 +623,7 @@ export default function App() {
                         </div>
                       </div>
                       <span className="text-xs font-mono font-bold text-[#00A884]">
-                        {auditData.accountsFound} Endpoints Queried
+                        {auditData.accountsFound} Endpoints
                       </span>
                     </div>
 
@@ -566,7 +642,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Stage 2: Manual Verification & Indicator Validation */}
+                  {/* Stage 2: Manual OSINT Verification */}
                   <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${bgCard} ${borderColor}`}>
                     <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
                       <div className="flex items-center space-x-3">
@@ -642,7 +718,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Stage 3: Digital Footprint Mapping Matrix */}
+                  {/* Stage 3: Footprint Mapping Matrix */}
                   <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${bgCard} ${borderColor}`}>
                     <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
                       <div className="flex items-center space-x-3">
@@ -672,12 +748,10 @@ export default function App() {
                             <tr key={p.id} className={`hover:bg-gray-500/5 transition ${textPrimary}`}>
                               <td className="p-3 font-bold">{p.platform}</td>
                               <td className="p-3 font-mono text-[#00A884]">@{p.username}</td>
-                              <td className={`p-3 max-w-xs ${textSecondary}`}>{p.evidence}</td>
+                              <td className={`p-3 ${textSecondary}`}>{p.evidence}</td>
                               <td className="p-3">
-                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-mono font-bold border ${
-                                  p.initialConfidence === 'High'
-                                    ? 'bg-emerald-500/20 text-emerald-600 border-emerald-500/40'
-                                    : 'bg-amber-500/20 text-amber-600 border-amber-500/40'
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                                  p.initialConfidence === 'High' ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'
                                 }`}>
                                   {p.initialConfidence}
                                 </span>
@@ -686,10 +760,10 @@ export default function App() {
                                 <a
                                   href={p.url}
                                   target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center space-x-1 text-[#00A884] font-bold hover:underline"
+                                  rel="noopener noreferrer"
+                                  className="text-[#00A884] font-bold hover:underline inline-flex items-center space-x-1"
                                 >
-                                  <span>Inspect Profile</span>
+                                  <span>View</span>
                                   <ExternalLink className="w-3 h-3" />
                                 </a>
                               </td>
@@ -702,15 +776,13 @@ export default function App() {
 
                   {/* Stage 4: Intelligence Findings */}
                   <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${bgCard} ${borderColor}`}>
-                    <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-xl bg-[#00A884]/15 text-[#00A884]">
-                          <BarChart3 className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h2 className={`text-lg font-bold ${textPrimary}`}>Stage 4 — Intelligence Findings</h2>
-                          <p className={`text-xs ${textSecondary}`}>Identified username reuse patterns, privacy exposure, and connections.</p>
-                        </div>
+                    <div className="flex items-center space-x-3 border-b pb-4 border-gray-500/10">
+                      <div className="p-2 rounded-xl bg-[#00A884]/15 text-[#00A884]">
+                        <BarChart3 className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h2 className={`text-lg font-bold ${textPrimary}`}>Stage 4 — Intelligence Findings</h2>
+                        <p className={`text-xs ${textSecondary}`}>Synthesized patterns, correlation findings, and exposure analysis.</p>
                       </div>
                     </div>
 
@@ -718,41 +790,38 @@ export default function App() {
                       {auditData.findings.map((f) => (
                         <div key={f.id} className={`p-5 rounded-2xl border space-y-2 ${bgCardAlt} ${borderColor}`}>
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#00A884]/20 text-[#00A884]">
-                              {f.category}
-                            </span>
-                            <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
-                              f.severity === 'Critical' ? 'bg-rose-500/20 text-rose-600' : 'bg-amber-500/20 text-amber-600'
+                            <h3 className={`font-bold text-sm ${textPrimary}`}>{f.title}</h3>
+                            <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-bold ${
+                              f.severity === 'Critical' ? 'bg-rose-500/20 text-rose-500' : 'bg-amber-500/20 text-amber-500'
                             }`}>
                               {f.severity}
                             </span>
                           </div>
-                          <h3 className={`text-xs font-bold ${textPrimary}`}>{f.title}</h3>
                           <p className={`text-xs ${textSecondary} leading-relaxed`}>{f.description}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Stage 5: Privacy & Risk Hardening Recommendations */}
+                  {/* Stage 5: Privacy & Risk Hardening */}
                   <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${bgCard} ${borderColor}`}>
-                    <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 rounded-xl bg-[#00A884]/15 text-[#00A884]">
-                          <Lock className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <h2 className={`text-lg font-bold ${textPrimary}`}>Stage 5 — Privacy & Risk Recommendations</h2>
-                          <p className={`text-xs ${textSecondary}`}>Actionable defense measures to reduce overall digital exposure surface.</p>
-                        </div>
+                    <div className="flex items-center space-x-3 border-b pb-4 border-gray-500/10">
+                      <div className="p-2 rounded-xl bg-[#00A884]/15 text-[#00A884]">
+                        <Lock className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h2 className={`text-lg font-bold ${textPrimary}`}>Stage 5 — Privacy & Security Recommendations</h2>
+                        <p className={`text-xs ${textSecondary}`}>Actionable remediation steps to harden privacy posture.</p>
                       </div>
                     </div>
 
                     <div className="space-y-3">
                       {auditData.recommendations.map((rec, idx) => (
                         <div key={idx} className={`p-4 rounded-2xl border flex items-start space-x-3 ${bgCardAlt} ${borderColor}`}>
-                          <CheckCircle2 className="w-5 h-5 text-[#00A884] shrink-0 mt-0.5" />
-                          <p className={`text-xs font-medium leading-relaxed ${textPrimary}`}>{rec}</p>
+                          <div className="w-6 h-6 rounded-full bg-[#00A884]/20 text-[#00A884] flex items-center justify-center font-mono text-xs font-bold shrink-0 mt-0.5">
+                            0{idx + 1}
+                          </div>
+                          <p className={`text-xs ${textPrimary} font-medium leading-relaxed`}>{rec}</p>
                         </div>
                       ))}
                     </div>
@@ -763,152 +832,13 @@ export default function App() {
             </div>
           )}
 
-          {}
-          {currentView === 'dashboard' && auditData && (
-            <div className="space-y-8">
-              {/* Executive Target Banner */}
-              <div className={`p-6 sm:p-8 rounded-3xl border shadow-sm flex flex-wrap items-center justify-between gap-6 ${bgCard} ${borderColor}`}>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#00A884]">Target Entity</span>
-                  <div className="flex items-center space-x-3">
-                    <h1 className={`text-2xl sm:text-3xl font-mono font-bold ${textPrimary}`}>@{auditData.username}</h1>
-                    <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-rose-500/20 text-rose-600 border border-rose-500/40">
-                      HIGH RISK EXPOSURE
-                    </span>
-                  </div>
-                  <p className={`text-xs font-medium ${textSecondary}`}>Audit completed: {auditData.timestamp}</p>
-                </div>
-
-                <div className="flex items-center space-x-6 sm:space-x-10">
-                  <div>
-                    <div className={`text-2xl sm:text-3xl font-black ${textPrimary}`}>{auditData.accountsFound}</div>
-                    <div className={`text-[10px] font-mono font-bold uppercase ${textSecondary}`}>Endpoints</div>
-                  </div>
-                  <div className="w-px h-8 bg-gray-500/20" />
-                  <div>
-                    <div className="text-2xl sm:text-3xl font-black text-[#00A884]">
-                      {Object.values(verifiedMap).filter(Boolean).length} / {auditData.profiles.length}
-                    </div>
-                    <div className={`text-[10px] font-mono font-bold uppercase ${textSecondary}`}>Verified</div>
-                  </div>
-                  <div className="w-px h-8 bg-gray-500/20" />
-                  <div>
-                    <div className="text-2xl sm:text-3xl font-black text-rose-500">{auditData.exposureScore}/100</div>
-                    <div className={`text-[10px] font-mono font-bold uppercase ${textSecondary}`}>Risk Score</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Identity Node Visualization Graph */}
-              <div className={`p-6 sm:p-8 rounded-3xl border space-y-4 ${bgCard} ${borderColor}`}>
-                <div className="flex items-center justify-between border-b pb-4 border-gray-500/10">
-                  <div>
-                    <h2 className={`text-lg font-bold flex items-center space-x-2 ${textPrimary}`}>
-                      <Network className="w-5 h-5 text-[#00A884]" />
-                      <span>Interactive Identity Correlation Graph</span>
-                    </h2>
-                    <p className={`text-xs ${textSecondary}`}>Node connection graph between public accounts and target handle seed.</p>
-                  </div>
-                </div>
-
-                <div className="relative w-full h-80 bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center overflow-hidden p-4">
-                  <svg className="w-full h-full max-w-xl" viewBox="0 0 500 280">
-                    {auditData.profiles.map((p, idx) => {
-                      const angle = (idx / auditData.profiles.length) * Math.PI * 2;
-                      const cx = 250 + Math.cos(angle) * 150;
-                      const cy = 140 + Math.sin(angle) * 90;
-
-                      return (
-                        <line
-                          key={`l-${p.id}`}
-                          x1={250}
-                          y1={140}
-                          x2={cx}
-                          y2={cy}
-                          stroke={verifiedMap[p.id] ? '#00A884' : '#f59e0b'}
-                          strokeWidth={activeNodeHover === p.id ? 3 : 1.5}
-                          strokeDasharray={verifiedMap[p.id] ? 'none' : '4 4'}
-                        />
-                      );
-                    })}
-
-                    {/* Central Target Node */}
-                    <g className="cursor-pointer">
-                      <circle cx={250} cy={140} r={28} fill="#00A884" className="animate-pulse opacity-90" />
-                      <circle cx={250} cy={140} r={22} fill="#008f70" />
-                      <text x={250} y={144} textAnchor="middle" fill="#ffffff" fontSize={10} fontWeight="bold">
-                        @{auditData.username}
-                      </text>
-                    </g>
-
-                    {/* Endpoint Nodes */}
-                    {auditData.profiles.map((p, idx) => {
-                      const angle = (idx / auditData.profiles.length) * Math.PI * 2;
-                      const cx = 250 + Math.cos(angle) * 150;
-                      const cy = 140 + Math.sin(angle) * 90;
-                      const isVer = verifiedMap[p.id];
-
-                      return (
-                        <g
-                          key={`n-${p.id}`}
-                          className="cursor-pointer transition-transform hover:scale-110"
-                          onMouseEnter={() => setActiveNodeHover(p.id)}
-                          onMouseLeave={() => setActiveNodeHover(null)}
-                          onClick={() => toggleVerified(p.id)}
-                        >
-                          <circle cx={cx} cy={cy} r={18} fill={isVer ? '#00A884' : '#f59e0b'} />
-                          <text x={cx} y={cy + 4} textAnchor="middle" fill="#ffffff" fontSize={9} fontWeight="bold">
-                            {p.platform.substring(0, 3)}
-                          </text>
-                          <text x={cx} y={cy + 30} textAnchor="middle" fill="#ffffff" fontSize={11} fontWeight="bold">
-                            {p.platform}
-                          </text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-
-                  {/* Node Hover Tooltip */}
-                  {activeNodeHover && (
-                    <div className="absolute bottom-4 left-4 bg-slate-900 border border-[#00A884] p-3 rounded-xl text-xs space-y-1 shadow-xl max-w-xs z-10">
-                      {(() => {
-                        const p = auditData.profiles.find(item => item.id === activeNodeHover);
-                        if (!p) return null;
-                        return (
-                          <>
-                            <div className="font-bold text-[#00A884]">{p.platform} (@{p.username})</div>
-                            <div className="text-slate-300 text-[11px] leading-tight">{p.bio}</div>
-                            <div className="text-[10px] text-amber-400 font-mono pt-1">
-                              Confidence: {p.initialConfidence}
-                            </div>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Quick Pipeline Transition Button */}
-              <div className="text-center pt-2">
-                <button
-                  onClick={() => setCurrentView('pipeline')}
-                  className="text-xs font-bold px-6 py-3 rounded-2xl bg-[#00A884] text-white hover:bg-[#008f70] transition inline-flex items-center space-x-2 shadow-md"
-                >
-                  <span>Explore Full 5-Stage OSINT Audit Workflow</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {}
+          {/* HISTORY VIEW */}
           {currentView === 'history' && (
             <div className="space-y-4 max-w-4xl mx-auto">
-              <h2 className={`text-xl font-bold ${textPrimary}`}>Audit History Log</h2>
+              <h2 className={`text-2xl font-black ${textPrimary}`}>OSINT Audit History</h2>
               {history.length === 0 ? (
-                <div className={`p-8 text-center rounded-2xl border text-xs ${bgCard} ${borderColor} ${textSecondary}`}>
-                  No audit history logged.
+                <div className={`p-8 text-center rounded-2xl border text-sm font-medium ${bgCard} ${borderColor} ${textSecondary}`}>
+                  No prior audits recorded.
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -917,17 +847,17 @@ export default function App() {
                       key={item.id}
                       onClick={() => {
                         setAuditData(item);
-                        setCurrentView('dashboard');
+                        setCurrentView('pipeline');
                       }}
-                      className={`p-4 rounded-2xl border flex items-center justify-between cursor-pointer transition hover:border-[#00A884] ${bgCard} ${borderColor}`}
+                      className={`p-5 rounded-2xl border flex items-center justify-between cursor-pointer transition hover:scale-[1.01] ${bgCard} ${borderColor}`}
                     >
                       <div>
-                        <div className="font-mono font-bold text-sm text-[#00A884]">@{item.username}</div>
-                        <div className={`text-xs ${textSecondary}`}>{item.timestamp}</div>
+                        <div className="font-mono font-bold text-base text-[#00A884]">@{item.username}</div>
+                        <div className={`text-xs mt-1 ${textSecondary}`}>Audited on {item.timestamp}</div>
                       </div>
-                      <div className="flex items-center space-x-4 text-xs font-bold">
+                      <div className="flex items-center space-x-6 text-sm font-bold">
                         <span className={textPrimary}>{item.accountsFound} Endpoints</span>
-                        <span className="text-rose-500">{item.exposureScore}/100 Risk</span>
+                        <span className="text-rose-500">{item.exposureScore}/100 Exposure Score</span>
                       </div>
                     </div>
                   ))}
@@ -936,12 +866,12 @@ export default function App() {
             </div>
           )}
 
-          {}
+          {/* METHODOLOGY VIEW */}
           {currentView === 'about' && (
-            <div className={`p-6 sm:p-8 rounded-3xl border space-y-4 text-xs leading-relaxed max-w-3xl mx-auto ${bgCard} ${borderColor}`}>
-              <h2 className={`text-xl font-bold text-[#00A884]`}>TraceLens OSINT Methodology</h2>
-              <p className={textSecondary}>
-                TraceLens implements a 5-layer Open Source Intelligence framework designed for public identity discovery, manual signal verification, footprint mapping, and privacy hardening.
+            <div className={`p-6 sm:p-8 rounded-3xl border space-y-4 text-sm leading-relaxed max-w-3xl mx-auto ${bgCard} ${borderColor}`}>
+              <h2 className="text-2xl font-black text-[#00A884]">TraceLens OSINT Methodology</h2>
+              <p className={textPrimary}>
+                TraceLens implements a 5-layer Open Source Intelligence (OSINT) framework designed for cross-platform handle correlation, manual indicator validation, digital footprint mapping, and privacy risk hardening.
               </p>
             </div>
           )}
