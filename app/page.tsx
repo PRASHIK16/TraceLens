@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Search, ShieldAlert, Cpu, Eye, Network, AlertTriangle, 
-  CheckCircle2, ExternalLink, ArrowRight, Activity, Database,
-  FileText, History, Info, Sparkles, Terminal, RefreshCw, Lock,
-  ChevronRight, Shield, Share2, Layers, MapPin, Link as LinkIcon
+  Search, ShieldAlert, Cpu, Eye, Network, CheckCircle2,
+  ExternalLink, ArrowRight, Activity, History, Info, Sparkles,
+  Lock, CheckSquare, Square, Layers, FileCheck, ShieldCheck,
+  AlertOctagon
 } from 'lucide-react';
 
 export default function TraceLensApp() {
@@ -15,16 +15,19 @@ export default function TraceLensApp() {
   const [scanStage, setScanStage] = useState(0);
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
-  const [completedRecs, setCompletedRecs] = useState<Record<string, boolean>>({});
+
+  // Verification Checklist State
+  const [verifiedMap, setVerifiedMap] = useState<Record<string, boolean>>({});
+  const [checklists, setChecklists] = useState<Record<string, Record<string, boolean>>>({});
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const scanStages = [
-    'Checking public username presence across platform index...',
-    'Probing public profiles and endpoints...',
-    'Extracting observable bio signals, location tags, and links...',
-    'Running signal correlation & similarity scoring engine...',
-    'Evaluating privacy risk & building digital footprint graph...'
+    'Stage 1: Discovering public handle presence across platform indexes...',
+    'Stage 2: Fetching observable bio signals & metadata APIs...',
+    'Stage 3: Correlating cross-platform identity indicators...',
+    'Stage 4: Building Digital Footprint Mapping Matrix...',
+    'Stage 5: Generating Intelligence Findings & OSINT Audit Report...'
   ];
 
   useEffect(() => {
@@ -46,6 +49,8 @@ export default function TraceLensApp() {
     setIsScanning(true);
     setScanStage(0);
     setAnalysisData(null);
+    setVerifiedMap({});
+    setChecklists({});
 
     const interval = setInterval(() => {
       setScanStage((prev) => {
@@ -53,7 +58,7 @@ export default function TraceLensApp() {
         clearInterval(interval);
         return prev;
       });
-    }, 600);
+    }, 500);
 
     try {
       const response = await fetch('/api/analyze', {
@@ -70,6 +75,13 @@ export default function TraceLensApp() {
       clearInterval(interval);
       setAnalysisData(data);
       setIsScanning(false);
+
+      // Pre-populate initial verification state from API
+      const initialVerified: Record<string, boolean> = {};
+      data.profiles.forEach((p: any) => {
+        initialVerified[p.id] = p.verified || false;
+      });
+      setVerifiedMap(initialVerified);
 
       const historyItem = {
         id: Date.now().toString(),
@@ -93,6 +105,24 @@ export default function TraceLensApp() {
     }
   };
 
+  const toggleChecklist = (profileId: string, indicatorKey: string) => {
+    setChecklists((prev) => {
+      const profileCheck = prev[profileId] || {};
+      const updatedProfileCheck = { ...profileCheck, [indicatorKey]: !profileCheck[indicatorKey] };
+      
+      const totalChecked = Object.values(updatedProfileCheck).filter(Boolean).length;
+      if (totalChecked >= 2) {
+        setVerifiedMap((v) => ({ ...v, [profileId]: true }));
+      }
+      
+      return { ...prev, [profileId]: updatedProfileCheck };
+    });
+  };
+
+  const toggleVerifiedStatus = (profileId: string) => {
+    setVerifiedMap((prev) => ({ ...prev, [profileId]: !prev[profileId] }));
+  };
+
   useEffect(() => {
     if (!analysisData || isScanning || !canvasRef.current) return;
 
@@ -101,16 +131,16 @@ export default function TraceLensApp() {
     if (!ctx) return;
 
     const nodes: any[] = [
-      { id: 'center', label: `@${analysisData.username}`, type: 'central', x: 250, y: 150, radius: 24, color: '#6366f1' },
+      { id: 'center', label: `@${analysisData.username}`, type: 'central', x: 250, y: 140, radius: 22, color: '#6366f1' },
     ];
 
     const edges: any[] = [];
 
     analysisData.profiles.forEach((p: any, idx: number) => {
       const angle = (idx / analysisData.profiles.length) * Math.PI * 2;
-      const x = 250 + Math.cos(angle) * 110;
-      const y = 150 + Math.sin(angle) * 90;
-      const nodeId = `profile-${p.platform}`;
+      const x = 250 + Math.cos(angle) * 120;
+      const y = 140 + Math.sin(angle) * 85;
+      const nodeId = `profile-${p.id}`;
       
       nodes.push({
         id: nodeId,
@@ -119,28 +149,13 @@ export default function TraceLensApp() {
         type: 'profile',
         x,
         y,
-        radius: 16,
-        color: '#38bdf8',
+        radius: 15,
+        color: verifiedMap[p.id] ? '#10b981' : '#f59e0b',
         details: p,
       });
 
-      edges.push({ from: 'center', to: nodeId, label: 'Identical Username' });
+      edges.push({ from: 'center', to: nodeId });
     });
-
-    const locationClue = analysisData.clues.find((c: any) => c.category === 'Location');
-    if (locationClue) {
-      nodes.push({
-        id: 'clue-loc',
-        label: locationClue.value,
-        type: 'signal',
-        x: 380,
-        y: 220,
-        radius: 14,
-        color: '#f59e0b',
-        details: locationClue,
-      });
-      edges.push({ from: 'center', to: 'clue-loc', label: 'Observed Signal' });
-    }
 
     let animationFrameId: number;
 
@@ -156,7 +171,7 @@ export default function TraceLensApp() {
           ctx.lineTo(target.x, target.y);
           ctx.strokeStyle = '#334155';
           ctx.lineWidth = 1.5;
-          ctx.setLineDash([4, 4]);
+          ctx.setLineDash([3, 3]);
           ctx.stroke();
           ctx.setLineDash([]);
         }
@@ -174,7 +189,7 @@ export default function TraceLensApp() {
         ctx.fillStyle = '#f8fafc';
         ctx.font = node.type === 'central' ? 'bold 11px sans-serif' : '10px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(node.label, node.x, node.y + node.radius + 14);
+        ctx.fillText(node.label, node.x, node.y + node.radius + 13);
       });
 
       animationFrameId = requestAnimationFrame(draw);
@@ -183,11 +198,7 @@ export default function TraceLensApp() {
     draw();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [analysisData, isScanning]);
-
-  const toggleRec = (id: string) => {
-    setCompletedRecs((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  }, [analysisData, isScanning, verifiedMap]);
 
   return (
     <div className="min-h-screen bg-[#0A0D14] text-slate-100 flex flex-col font-sans antialiased">
@@ -200,7 +211,7 @@ export default function TraceLensApp() {
           <div>
             <span className="font-bold text-lg tracking-wider text-slate-100">TraceLens</span>
             <span className="text-[10px] ml-2 px-2 py-0.5 bg-slate-800 text-indigo-400 rounded-full border border-indigo-500/20 font-mono">
-              INTEL v2.4
+              OSINT FRAMEWORK
             </span>
           </div>
         </div>
@@ -210,11 +221,11 @@ export default function TraceLensApp() {
             <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Analyze username..."
+              placeholder="Target username..."
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleStartScan()}
-              className="bg-[#161B26] border border-slate-700/60 text-xs pl-9 pr-4 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 w-64"
+              className="bg-[#161B26] border border-slate-700/60 text-xs pl-9 pr-4 py-2 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-200 placeholder-slate-500 w-64 font-mono"
             />
           </div>
           <button
@@ -222,10 +233,26 @@ export default function TraceLensApp() {
             className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-4 py-2 rounded-lg font-medium transition flex items-center space-x-1.5 shadow-lg shadow-indigo-600/20"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Analyze</span>
+            <span>Run OSINT Audit</span>
           </button>
         </div>
       </header>
+
+      {/* OSINT Workflow Pipeline Bar */}
+      <div className="bg-[#121722] border-b border-slate-800/60 px-6 py-2.5 text-[11px] font-mono text-slate-400 flex items-center justify-between overflow-x-auto">
+        <span className="text-slate-500 font-semibold uppercase tracking-wider text-[10px]">OSINT Workflow Pipeline:</span>
+        <div className="flex items-center space-x-2">
+          <span className="text-indigo-400 font-bold">1. Discovery</span>
+          <span>➔</span>
+          <span className="text-amber-400 font-bold">2. Manual Verification</span>
+          <span>➔</span>
+          <span className="text-sky-400 font-bold">3. Footprint Mapping</span>
+          <span>➔</span>
+          <span className="text-purple-400 font-bold">4. Intelligence Findings</span>
+          <span>➔</span>
+          <span className="text-emerald-400 font-bold">5. Risk Analysis</span>
+        </div>
+      </div>
 
       <div className="flex flex-1">
         {/* Navigation Sidebar */}
@@ -247,7 +274,7 @@ export default function TraceLensApp() {
               }`}
             >
               <History className="w-4 h-4" />
-              <span>Scan History</span>
+              <span>Audit History</span>
             </button>
             <button
               onClick={() => setCurrentView('about')}
@@ -256,17 +283,17 @@ export default function TraceLensApp() {
               }`}
             >
               <Info className="w-4 h-4" />
-              <span>About Methodology</span>
+              <span>OSINT Methodology</span>
             </button>
           </nav>
 
-          <div className="bg-[#161B26] p-3 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
+          <div className="bg-[#161B26] p-3.5 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-2">
             <div className="flex items-center space-x-1.5 text-amber-400 font-medium">
               <ShieldAlert className="w-3.5 h-3.5" />
-              <span>Safety Boundary</span>
+              <span>Ethical Boundary</span>
             </div>
             <p className="leading-relaxed">
-              Demonstrates intelligence correlation using strictly publicly observable signals.
+              Analyzes strictly publicly available indicators. Use synthetic test identities (e.g., <code className="text-indigo-300">@zyz_123</code>) for demonstration.
             </p>
           </div>
         </aside>
@@ -276,15 +303,17 @@ export default function TraceLensApp() {
           {currentView === 'dashboard' && (
             <div className="max-w-4xl mx-auto space-y-8">
               <div className="space-y-2">
-                <h1 className="text-2xl font-bold tracking-tight text-white">Digital Footprint Intelligence</h1>
-                <p className="text-slate-400 text-xs max-w-xl leading-relaxed">
-                  Explore what publicly visible information can reveal when connected together across platforms.
+                <h1 className="text-2xl font-bold tracking-tight text-white">
+                  Social Media Intelligence & Digital Footprint Framework
+                </h1>
+                <p className="text-slate-400 text-xs max-w-2xl leading-relaxed">
+                  TraceLens combines automated endpoint discovery with manual OSINT validation, digital footprint mapping, and intelligence correlation to audit publicly observable identity exposures.
                 </p>
               </div>
 
-              <div className="bg-[#0F131C] border border-slate-800 p-6 rounded-2xl shadow-xl relative overflow-hidden">
+              <div className="bg-[#0F131C] border border-slate-800 p-6 rounded-2xl shadow-xl relative">
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Target Public Identity
+                  Target Public Identity (Test / Synthetic Handle)
                 </label>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
@@ -303,26 +332,26 @@ export default function TraceLensApp() {
                     className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/25 flex items-center justify-center space-x-2"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>Analyze Footprint</span>
+                    <span>Execute OSINT Workflow</span>
                   </button>
                 </div>
 
                 <div className="mt-4 flex items-center space-x-2 text-[11px] text-slate-500">
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Uses controlled public-profile discovery & standard OSINT handle probing.</span>
+                  <span>Educational Use Notice: No private scraping or authentication bypass is performed.</span>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Test Identity Seed Presets
+                  Test Identity Presets (Academic / Demo Seeds)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {[
-                    { handle: 'zyz_123', desc: 'High exposure profile with cross-platform links & location clues' },
-                    { handle: 'cyber_ninja', desc: 'Developer handle with open repository footprint' },
-                    { handle: 'shadow_dev', desc: 'Pseudonymous profile with partial account linkability' },
-                    { handle: 'test_001', desc: 'Low visibility handle with minimal observable signals' },
+                    { handle: 'zyz_123', desc: 'Synthetic target with cross-platform handle reuse & bio indicators' },
+                    { handle: 'cyber_ninja', desc: 'Developer identity seed with open public repository metadata' },
+                    { handle: 'shadow_dev', desc: 'Pseudonymous target with partial manual verification indicators' },
+                    { handle: 'test_001', desc: 'Low visibility handle for baseline exposure testing' },
                   ].map((preset) => (
                     <div
                       key={preset.handle}
@@ -357,13 +386,13 @@ export default function TraceLensApp() {
                   </div>
 
                   <div className="space-y-2">
-                    <h3 className="text-lg font-bold text-white">Analyzing Digital Footprint</h3>
+                    <h3 className="text-lg font-bold text-white">Running OSINT Intelligence Workflow</h3>
                     <p className="text-xs font-mono text-indigo-400">Target: @{searchUsername}</p>
                   </div>
 
                   <div className="bg-[#161B26] p-4 rounded-xl border border-slate-800 text-left space-y-2">
                     <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-                      <span>Scanning Stage {scanStage + 1}/5</span>
+                      <span>Workflow Progress</span>
                       <span>{Math.round(((scanStage + 1) / 5) * 100)}%</span>
                     </div>
                     <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
@@ -378,7 +407,8 @@ export default function TraceLensApp() {
                   </div>
                 </div>
               ) : analysisData ? (
-                <div className="space-y-6">
+                <div className="space-y-8">
+                  {/* Summary Bar */}
                   <div className="bg-[#0F131C] border border-slate-800 p-6 rounded-2xl flex flex-wrap items-center justify-between gap-4">
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
@@ -388,23 +418,25 @@ export default function TraceLensApp() {
                           analysisData.summary.exposureLevel === 'MEDIUM' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' :
                           'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                         }`}>
-                          {analysisData.summary.exposureLevel} EXPOSURE
+                          {analysisData.summary.exposureLevel} RISK LEVEL
                         </span>
                       </div>
                       <p className="text-xs text-slate-400">
-                        Scan completed on {new Date(analysisData.timestamp).toLocaleTimeString()}
+                        OSINT Audit generated on {new Date(analysisData.timestamp).toLocaleTimeString()}
                       </p>
                     </div>
 
                     <div className="flex items-center space-x-6 text-center">
                       <div>
                         <div className="text-xl font-bold text-white">{analysisData.summary.accountsFound}</div>
-                        <div className="text-[10px] uppercase text-slate-400">Accounts Found</div>
+                        <div className="text-[10px] uppercase text-slate-400">Discovered Profiles</div>
                       </div>
                       <div className="w-px h-8 bg-slate-800" />
                       <div>
-                        <div className="text-xl font-bold text-white">{analysisData.summary.signalsCollected}</div>
-                        <div className="text-[10px] uppercase text-slate-400">Public Clues</div>
+                        <div className="text-xl font-bold text-amber-400">
+                          {Object.values(verifiedMap).filter(Boolean).length} / {analysisData.profiles.length}
+                        </div>
+                        <div className="text-[10px] uppercase text-slate-400">Verified Profiles</div>
                       </div>
                       <div className="w-px h-8 bg-slate-800" />
                       <div>
@@ -414,47 +446,172 @@ export default function TraceLensApp() {
                     </div>
                   </div>
 
+                  {/* Section 2: Manual Verification Layer */}
+                  <div className="bg-[#0F131C] border border-slate-800 p-6 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <div>
+                        <h2 className="text-sm font-bold text-amber-400 flex items-center space-x-2">
+                          <FileCheck className="w-4 h-4" />
+                          <span>Layer 2: Manual OSINT Verification (Validation Checklist)</span>
+                        </h2>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Cross-check publicly observable indicators to confirm if discovered profiles belong to the same entity.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {analysisData.profiles.map((p: any) => {
+                        const pCheck = checklists[p.id] || {};
+                        const isVerified = verifiedMap[p.id];
+
+                        return (
+                          <div key={p.id} className="bg-[#141923] border border-slate-800 p-4 rounded-xl space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-xs text-indigo-300">{p.platform}</span>
+                              <button
+                                onClick={() => toggleVerifiedStatus(p.id)}
+                                className={`text-[10px] px-2 py-0.5 rounded font-mono border font-medium ${
+                                  isVerified
+                                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                                    : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                                }`}
+                              >
+                                {isVerified ? '✓ Verified' : '⚠ Pending Verification'}
+                              </button>
+                            </div>
+
+                            <div className="text-xs font-mono text-slate-200">@{p.username}</div>
+
+                            <div className="space-y-1.5 pt-1 border-t border-slate-800/80 text-[11px]">
+                              <span className="text-slate-400 text-[10px] font-semibold uppercase">Verification Indicators:</span>
+                              
+                              {[
+                                { key: 'handle', label: 'Same Username Handle' },
+                                { key: 'bio', label: 'Bio / Interests Similarity' },
+                                { key: 'avatar', label: 'Profile Picture / Avatar Match' },
+                                { key: 'links', label: 'Cross-Linked Public URLs' },
+                              ].map((ind) => (
+                                <div
+                                  key={ind.key}
+                                  onClick={() => toggleChecklist(p.id, ind.key)}
+                                  className="flex items-center space-x-2 cursor-pointer text-slate-300 hover:text-white"
+                                >
+                                  {pCheck[ind.key] ? (
+                                    <CheckSquare className="w-3.5 h-3.5 text-indigo-400" />
+                                  ) : (
+                                    <Square className="w-3.5 h-3.5 text-slate-600" />
+                                  )}
+                                  <span>{ind.label}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section 3: Digital Footprint Mapping Table */}
+                  <div className="bg-[#0F131C] border border-slate-800 p-6 rounded-2xl space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <div>
+                        <h2 className="text-sm font-bold text-sky-400 flex items-center space-x-2">
+                          <Layers className="w-4 h-4" />
+                          <span>Layer 3: Digital Footprint Mapping Matrix</span>
+                        </h2>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Structured evidence mapping table linking platforms, handles, public evidence, and confidence ratings.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs font-mono">
+                        <thead className="bg-[#141923] text-slate-400 uppercase text-[10px]">
+                          <tr>
+                            <th className="p-3">Platform</th>
+                            <th className="p-3">Username</th>
+                            <th className="p-3">Public Evidence Indicator</th>
+                            <th className="p-3">Confidence</th>
+                            <th className="p-3">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                          {analysisData.profiles.map((p: any) => (
+                            <tr key={p.id} className="hover:bg-[#131824]">
+                              <td className="p-3 font-semibold text-indigo-400">{p.platform}</td>
+                              <td className="p-3 font-mono">@{p.username}</td>
+                              <td className="p-3 text-slate-400">{p.evidence}</td>
+                              <td className="p-3">
+                                <span className={`px-2 py-0.5 rounded text-[10px] ${
+                                  p.confidence === 'High' ? 'bg-emerald-500/10 text-emerald-400' :
+                                  p.confidence === 'Medium' ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-800 text-slate-400'
+                                }`}>
+                                  {p.confidence}
+                                </span>
+                              </td>
+                              <td className="p-3">
+                                {verifiedMap[p.id] ? (
+                                  <span className="text-emerald-400 font-bold">Verified</span>
+                                ) : (
+                                  <span className="text-amber-400 font-bold">Unverified</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Section 4 & Graph: Intelligence Findings & Risk Analysis */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1 bg-[#0F131C] border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-semibold text-slate-300 flex items-center space-x-1">
                           <Network className="w-3.5 h-3.5 text-indigo-400" />
-                          <span>Digital Footprint Graph</span>
+                          <span>Identity Graph Visualization</span>
                         </span>
                       </div>
                       <div className="flex justify-center items-center py-2">
-                        <canvas ref={canvasRef} width={500} height={300} className="w-full h-auto max-h-60" />
+                        <canvas ref={canvasRef} width={500} height={280} className="w-full h-auto max-h-56" />
                       </div>
                     </div>
 
-                    <div className="md:col-span-2 space-y-3">
-                      <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                        Discovered Public Profiles
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {analysisData.profiles.map((profile: any) => (
-                          <div key={profile.id} className="bg-[#0F131C] border border-slate-800 rounded-xl p-4 space-y-2.5">
+                    <div className="md:col-span-2 bg-[#0F131C] border border-slate-800 p-6 rounded-2xl space-y-4">
+                      <h2 className="text-sm font-bold text-purple-400 flex items-center space-x-2">
+                        <AlertOctagon className="w-4 h-4" />
+                        <span>Layer 4 & 5: Intelligence Findings & Risk Analysis</span>
+                      </h2>
+
+                      <div className="space-y-3">
+                        {analysisData.intelligenceFindings.map((f: any, idx: number) => (
+                          <div key={idx} className="bg-[#141923] border border-slate-800 p-3.5 rounded-xl space-y-1 text-xs">
                             <div className="flex items-center justify-between">
-                              <span className="font-semibold text-xs text-indigo-400">{profile.platform}</span>
-                              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                                {profile.confidenceLevel}
+                              <span className="font-bold text-slate-200">{f.category}</span>
+                              <span className="text-[9px] px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 font-mono">
+                                {f.severity} SEVERITY
                               </span>
                             </div>
-                            <div>
-                              <div className="font-bold text-sm text-slate-100 font-mono">@{profile.username}</div>
-                              <p className="text-xs text-slate-400 line-clamp-2 mt-1">{profile.bio}</p>
-                            </div>
-                            <a
-                              href={profile.profileUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center space-x-1 text-xs text-indigo-400 hover:underline pt-2 border-t border-slate-800/80 w-full"
-                            >
-                              <span>View Endpoint</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
+                            <p className="text-indigo-300">{f.finding}</p>
+                            <p className="text-slate-400 text-[11px]">{f.impact}</p>
                           </div>
                         ))}
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800 space-y-2">
+                        <span className="text-xs font-semibold text-emerald-400 flex items-center space-x-1">
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          <span>Actionable Recommendations</span>
+                        </span>
+                        <ul className="text-xs text-slate-300 space-y-1.5 list-disc list-inside">
+                          {analysisData.recommendations.map((r: any) => (
+                            <li key={r.id}>
+                              <strong className="text-slate-100">{r.title}:</strong> {r.description}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     </div>
                   </div>
@@ -465,10 +622,10 @@ export default function TraceLensApp() {
 
           {currentView === 'history' && (
             <div className="max-w-4xl mx-auto space-y-4">
-              <h2 className="text-lg font-bold text-slate-100">Scan History</h2>
+              <h2 className="text-lg font-bold text-slate-100">OSINT Audit History</h2>
               {history.length === 0 ? (
                 <div className="bg-[#0F131C] border border-slate-800 p-8 text-center rounded-2xl text-slate-500 text-xs">
-                  No scan history stored yet.
+                  No previous audits saved.
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -483,10 +640,10 @@ export default function TraceLensApp() {
                     >
                       <div>
                         <div className="font-mono font-bold text-sm text-indigo-400">@{item.username}</div>
-                        <div className="text-[11px] text-slate-500">Scanned on {item.date}</div>
+                        <div className="text-[11px] text-slate-500">Audited on {item.date}</div>
                       </div>
                       <div className="flex items-center space-x-4 text-xs">
-                        <span className="text-slate-400">{item.accounts} Accounts</span>
+                        <span className="text-slate-400">{item.accounts} Profiles</span>
                         <span className="font-bold text-slate-200">{item.score}/100</span>
                       </div>
                     </div>
@@ -498,9 +655,9 @@ export default function TraceLensApp() {
 
           {currentView === 'about' && (
             <div className="max-w-3xl mx-auto bg-[#0F131C] border border-slate-800 p-6 rounded-2xl space-y-4 text-slate-300 text-xs leading-relaxed">
-              <h2 className="text-lg font-bold text-slate-100">About TraceLens Methodology</h2>
+              <h2 className="text-lg font-bold text-slate-100">TraceLens OSINT Methodology</h2>
               <p>
-                TraceLens is a Social Media Intelligence (SOCMINT) dashboard demonstrating publicly observable handle correlations.
+                TraceLens implements a 5-stage Open Source Intelligence (OSINT) framework designed to demonstrate cross-platform handle correlation, manual indicator verification, footprint mapping, and privacy risk assessment.
               </p>
             </div>
           )}
