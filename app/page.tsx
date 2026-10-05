@@ -10,15 +10,15 @@ import {
 
 export default function TraceLensApp() {
   const [currentView, setCurrentView] = useState<'dashboard' | 'analysis' | 'history' | 'about'>('dashboard');
-  const [searchUsername, setSearchUsername] = useState('zyz_123');
+  const [searchUsername, setSearchUsername] = useState('wesbos');
   const [isScanning, setIsScanning] = useState(false);
   const [scanStage, setScanStage] = useState(0);
   const [analysisData, setAnalysisData] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
 
   // Theme & UX State
-  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('light'); // Defaulting to light to test contrast
-  const [colorTheme, setColorTheme] = useState<'whatsapp' | 'tinder' | 'cyber'>('whatsapp');
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
+  const [colorTheme, setColorTheme] = useState<'whatsapp' | 'tinder' | 'cyber'>('cyber');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeNodeHover, setActiveNodeHover] = useState<string | null>(null);
 
@@ -26,13 +26,13 @@ export default function TraceLensApp() {
   const [verifiedMap, setVerifiedMap] = useState<Record<string, boolean>>({});
   const [checklists, setChecklists] = useState<Record<string, Record<string, boolean>>>({});
 
-  // 5-Layer OSINT Pipeline Steps
+  // 5-Layer OSINT Pipeline Steps for Client Presentation
   const osintPipelineSteps = [
-    { title: '1. Username Discovery', desc: 'Queries public handle presence across platform indexes.' },
-    { title: '2. Profile Verification', desc: 'Validates observable bio signals & metadata endpoints.' },
-    { title: '3. Identity Correlation', desc: 'Correlates cross-platform handle reuse indicators.' },
-    { title: '4. Footprint Intelligence', desc: 'Generates Digital Footprint & Mapping Matrix.' },
-    { title: '5. Risk & Exposure Analysis', desc: 'Audits privacy exposure & hardening scores.' },
+    { id: 1, title: 'Username Discovery', tag: 'Discovery', desc: 'Queries public handle presence across 500+ platform indexes.' },
+    { id: 2, title: 'Profile Verification', tag: 'Verification', desc: 'Validates observable bio signals & metadata endpoints.' },
+    { id: 3, title: 'Identity Correlation', tag: 'Correlation', desc: 'Correlates cross-platform handle reuse indicators.' },
+    { id: 4, title: 'Footprint Intelligence', tag: 'Intelligence', desc: 'Generates Digital Footprint & Node Mapping Matrix.' },
+    { id: 5, title: 'Risk & Exposure Analysis', tag: 'Risk Analysis', desc: 'Audits privacy exposure, leak risk & hardening scores.' },
   ];
 
   useEffect(() => {
@@ -129,31 +129,31 @@ export default function TraceLensApp() {
       bgDark: 'bg-[#0B141A]',
       cardDark: 'bg-[#111B21]',
       borderDark: 'border-[#222D34]',
-      primaryBtn: 'bg-[#00A884] hover:bg-[#008f70] text-white shadow-emerald-900/20',
-      badge: 'bg-[#00A884]/15 text-[#008f70] border-[#00A884]/40 font-bold',
-      activeTab: 'bg-[#00A884]/15 text-[#008f70] dark:text-[#00A884] border-[#00A884]/50 font-bold',
-      glow: 'hover:shadow-[0_0_20px_rgba(0,168,132,0.2)]',
-      headingText: 'text-[#008f70] dark:text-emerald-400',
+      primaryBtn: 'bg-[#00A884] hover:bg-[#008f70] text-white shadow-emerald-900/30',
+      badge: 'bg-[#00A884]/20 text-[#00A884] border-[#00A884]/40 font-bold',
+      activeTab: 'bg-[#00A884]/20 text-[#00A884] border-[#00A884]/50 font-bold',
+      glow: 'hover:shadow-[0_0_20px_rgba(0,168,132,0.25)]',
+      headingText: 'text-[#00A884]',
     },
     tinder: {
       bgDark: 'bg-[#0F0C1B]',
       cardDark: 'bg-[#18132A]',
       borderDark: 'border-[#2C2348]',
-      primaryBtn: 'bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white shadow-rose-900/20',
-      badge: 'bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/40 font-bold',
-      activeTab: 'bg-rose-500/15 text-rose-600 dark:text-rose-300 border-rose-500/50 font-bold',
-      glow: 'hover:shadow-[0_0_20px_rgba(244,63,94,0.2)]',
-      headingText: 'text-rose-600 dark:text-rose-400',
+      primaryBtn: 'bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white shadow-rose-900/30',
+      badge: 'bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold',
+      activeTab: 'bg-rose-500/20 text-rose-300 border-rose-500/50 font-bold',
+      glow: 'hover:shadow-[0_0_20px_rgba(244,63,94,0.25)]',
+      headingText: 'text-rose-400',
     },
     cyber: {
       bgDark: 'bg-[#0A0D14]',
       cardDark: 'bg-[#0F131C]',
       borderDark: 'border-slate-800',
-      primaryBtn: 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20',
-      badge: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/40 font-bold',
-      activeTab: 'bg-indigo-600/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/50 font-bold',
-      glow: 'hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]',
-      headingText: 'text-indigo-700 dark:text-indigo-400',
+      primaryBtn: 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30',
+      badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40 font-bold',
+      activeTab: 'bg-indigo-600/20 text-indigo-300 border-indigo-500/50 font-bold',
+      glow: 'hover:shadow-[0_0_20px_rgba(99,102,241,0.25)]',
+      headingText: 'text-indigo-400',
     }
   };
 
@@ -173,28 +173,28 @@ export default function TraceLensApp() {
             <Cpu className="w-5 h-5" />
           </div>
           <div>
-            <span className={`font-extrabold text-xl tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>TraceLens</span>
+            <span className={`font-black text-xl tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>TraceLens</span>
             <span className={`text-[11px] ml-2 px-2.5 py-0.5 rounded-full border font-mono uppercase font-black hidden sm:inline-block ${
-              isLight ? 'bg-slate-200 border-slate-300 text-slate-800' : 'bg-slate-800 border-slate-700 text-slate-300'
+              isLight ? 'bg-slate-200 border-slate-300 text-slate-900' : 'bg-slate-800 border-slate-700 text-slate-300'
             }`}>
               OSINT Framework
             </span>
           </div>
         </div>
 
-        {/* Top Controls */}
+        {/* Global Nav Controls */}
         <div className="flex items-center space-x-3">
           <div className="relative hidden lg:block">
             <Search className={`w-4 h-4 absolute left-3 top-3 ${isLight ? 'text-slate-500' : 'text-slate-400'}`} />
             <input
               type="text"
-              placeholder="Target handle (e.g. zyz_123)..."
+              placeholder="Target handle (e.g. wesbos)..."
               value={searchUsername}
               onChange={(e) => setSearchUsername(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleStartScan()}
               className={`text-sm pl-9 pr-4 py-2 rounded-xl border focus:outline-none transition-all w-64 font-mono font-bold ${
                 isLight 
-                  ? 'bg-slate-50 border-slate-300 text-slate-900 placeholder:text-slate-500 focus:border-slate-600 shadow-inner' 
+                  ? 'bg-slate-50 border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-600 shadow-inner' 
                   : 'bg-slate-900 border-slate-700 text-slate-100 focus:border-indigo-500'
               }`}
             />
@@ -208,7 +208,7 @@ export default function TraceLensApp() {
             <span className="hidden sm:inline">Run OSINT Audit</span>
           </button>
 
-          {/* Theme Presets */}
+          {/* Theme Switcher */}
           <div className={`flex items-center space-x-1 border p-1 rounded-xl ${
             isLight ? 'bg-slate-200 border-slate-300' : 'bg-slate-800/40 border-slate-700/60'
           }`}>
@@ -227,9 +227,9 @@ export default function TraceLensApp() {
         </div>
       </header>
 
-      {/* Main Layout */}
+      {/* Main Body */}
       <div className="flex flex-1 relative">
-        {/* Sidebar Navigation */}
+        {/* Sidebar */}
         <aside className={`w-64 border-r p-5 hidden md:flex flex-col justify-between transition-colors ${
           isLight ? 'bg-white border-slate-300' : `${currentTheme.cardDark} ${currentTheme.borderDark}`
         }`}>
@@ -257,19 +257,19 @@ export default function TraceLensApp() {
           </nav>
 
           <div className={`p-4 rounded-2xl border text-xs space-y-2 ${
-            isLight ? 'bg-amber-100/80 border-amber-300 text-amber-950 font-medium' : 'bg-slate-900/80 border-slate-800 text-slate-300'
+            isLight ? 'bg-amber-100/90 border-amber-300 text-amber-950 font-medium' : 'bg-slate-900/90 border-slate-800 text-slate-200'
           }`}>
-            <div className="flex items-center space-x-1.5 font-black text-amber-800 dark:text-amber-500 text-sm">
+            <div className="flex items-center space-x-1.5 font-black text-amber-800 dark:text-amber-400 text-sm">
               <ShieldAlert className="w-4 h-4" />
               <span>Ethical OSINT Notice</span>
             </div>
-            <p className="leading-relaxed text-[12px] text-slate-800 dark:text-slate-300">
-              Only public data endpoints are queried. Try test seeds like <code className="font-mono font-bold text-indigo-700 dark:text-indigo-400">@zyz_123</code>.
+            <p className="leading-relaxed text-[12px] text-slate-800 dark:text-slate-300 font-medium">
+              Only public data endpoints are queried. Try test handles like <code className="font-mono font-bold text-indigo-700 dark:text-indigo-400">@wesbos</code>.
             </p>
           </div>
         </aside>
 
-        {/* Content View Area */}
+        {/* Main Content Area */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
           {currentView === 'dashboard' && (
             <div className="space-y-8">
@@ -278,37 +278,38 @@ export default function TraceLensApp() {
                 <h1 className={`text-3xl sm:text-4xl font-black tracking-tight ${isLight ? 'text-slate-950' : 'text-white'}`}>
                   Social Media OSINT Intelligence Pipeline
                 </h1>
-                <p className={`text-sm sm:text-base max-w-3xl font-medium leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                <p className={`text-sm sm:text-base max-w-3xl font-semibold leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-200'}`}>
                   Perform multi-layer public handle discovery, cross-platform signal verification, correlation mapping, and privacy risk assessments.
                 </p>
               </div>
 
-              {/* 5-Layer Structured Pipeline Flow Header */}
+              {/* 5-Layer Pipeline Flow for Client Demo */}
               <div className="space-y-3">
-                <h2 className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                <h2 className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                   5-Layer Structured OSINT Pipeline Workflow
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                  {osintPipelineSteps.map((step, idx) => (
+                  {osintPipelineSteps.map((step) => (
                     <div
-                      key={step.title}
-                      className={`p-4 rounded-2xl border transition-all ${
+                      key={step.id}
+                      className={`p-4 rounded-2xl border transition-all hover:scale-105 cursor-pointer shadow-sm ${
                         isLight 
-                          ? 'bg-white border-slate-300 shadow-sm text-slate-900' 
-                          : `${currentTheme.cardDark}${currentTheme.borderDark} text-slate-200`
+                          ? 'bg-white border-slate-300 text-slate-900 hover:border-slate-500' 
+                          : `${currentTheme.cardDark} ${currentTheme.borderDark} text-slate-100 hover:border-indigo-500/60`
                       }`}
                     >
-                      <div className="flex items-center space-x-2 mb-1.5">
-                        <span className={`text-xs font-mono font-black px-2 py-0.5 rounded-md ${
-                          isLight ? 'bg-slate-200 text-slate-900' : 'bg-slate-800 text-slate-200'
-                        }`}>
-                          0{idx + 1}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-mono font-black px-2 py-0.5 rounded-md bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-500/30">
+                          LAYER 0{step.id}
                         </span>
-                        <span className={`text-xs font-black ${currentTheme.headingText}`}>
-                          {step.title.split('.')[1]}
+                        <span className="text-[10px] font-extrabold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                          {step.tag}
                         </span>
                       </div>
-                      <p className={`text-[11px] leading-snug font-medium ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                      <h3 className={`text-sm font-black mb-1 ${isLight ? 'text-slate-950' : 'text-white'}`}>
+                        {step.title}
+                      </h3>
+                      <p className={`text-[11px] font-medium leading-snug ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         {step.desc}
                       </p>
                     </div>
@@ -316,11 +317,11 @@ export default function TraceLensApp() {
                 </div>
               </div>
 
-              {/* Target Handle Input Box */}
+              {/* Handle Search Box */}
               <div className={`p-6 sm:p-8 rounded-3xl border shadow-xl transition-all ${currentTheme.glow} ${
-                isLight ? 'bg-white border-slate-300 shadow-slate-200' : `${currentTheme.cardDark}${currentTheme.borderDark}`
+                isLight ? 'bg-white border-slate-300 shadow-slate-200' : `${currentTheme.cardDark} ${currentTheme.borderDark}`
               }`}>
-                <h2 className={`text-xs font-black uppercase tracking-wider mb-3 ${isLight ? 'text-slate-800' : currentTheme.headingText}`}>
+                <h2 className={`text-xs font-black uppercase tracking-wider mb-3 ${isLight ? 'text-slate-900' : currentTheme.headingText}`}>
                   Target Public Identity Handle
                 </h2>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -331,10 +332,10 @@ export default function TraceLensApp() {
                       value={searchUsername}
                       onChange={(e) => setSearchUsername(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleStartScan()}
-                      placeholder="e.g. zyz_123, cyber_ninja"
+                      placeholder="e.g. wesbos, zyz_123"
                       className={`w-full border rounded-2xl pl-10 pr-4 py-3.5 text-sm font-mono font-bold focus:outline-none transition-all ${
                         isLight
-                          ? 'bg-slate-50 border-slate-300 text-slate-950 placeholder:text-slate-400 focus:border-slate-600'
+                          ? 'bg-slate-50 border-slate-300 text-slate-950 placeholder:text-slate-500 focus:border-slate-700'
                           : 'bg-slate-900/90 border-slate-700 text-slate-100 focus:border-indigo-500'
                       }`}
                     />
@@ -351,15 +352,15 @@ export default function TraceLensApp() {
 
               {/* Preset Targets */}
               <div className="space-y-4">
-                <h2 className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                <h2 className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                   Academic Test Handles
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
+                    { handle: 'wesbos', desc: 'Developer handle with open social & platform footprint' },
                     { handle: 'zyz_123', desc: 'Synthetic target with cross-platform handle reuse' },
                     { handle: 'cyber_ninja', desc: 'Developer identity seed with open repository metadata' },
                     { handle: 'shadow_dev', desc: 'Pseudonymous target with manual verification indicators' },
-                    { handle: 'test_001', desc: 'Low visibility handle for baseline exposure testing' },
                   ].map((preset) => (
                     <div
                       key={preset.handle}
@@ -374,12 +375,12 @@ export default function TraceLensApp() {
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className={`font-mono text-sm font-black ${isLight ? 'text-indigo-700' : 'text-indigo-400'}`}>
+                        <span className={`font-mono text-sm font-black ${isLight ? 'text-indigo-800' : 'text-indigo-400'}`}>
                           @{preset.handle}
                         </span>
                         <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
                       </div>
-                      <p className={`text-xs mt-2.5 font-medium leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                      <p className={`text-xs mt-2.5 font-semibold leading-relaxed ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
                         {preset.desc}
                       </p>
                     </div>
@@ -393,7 +394,7 @@ export default function TraceLensApp() {
             <div className="space-y-8">
               {isScanning ? (
                 <div className={`p-8 sm:p-12 rounded-3xl border max-w-lg mx-auto text-center space-y-6 shadow-2xl ${
-                  isLight ? 'bg-white border-slate-300 text-slate-900' : `${currentTheme.cardDark}${currentTheme.borderDark}`
+                  isLight ? 'bg-white border-slate-300 text-slate-950' : `${currentTheme.cardDark}${currentTheme.borderDark}`
                 }`}>
                   <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
                     <div className="absolute inset-0 border-4 border-indigo-500/20 rounded-full" />
@@ -403,37 +404,40 @@ export default function TraceLensApp() {
 
                   <div className="space-y-2">
                     <h2 className="text-2xl font-black">Executing OSINT Pipeline</h2>
-                    <p className="text-sm font-mono text-indigo-700 dark:text-indigo-400 font-extrabold">@{searchUsername}</p>
+                    <p className="text-sm font-mono text-indigo-800 dark:text-indigo-400 font-black">@{searchUsername}</p>
                   </div>
 
-                  {/* 5-Layer Animated Progress */}
+                  {/* Animated Stepper Progress */}
                   <div className={`p-4 rounded-2xl border text-left space-y-3 ${
                     isLight ? 'bg-slate-100 border-slate-300' : 'bg-slate-900/80 border-slate-800'
                   }`}>
-                    <div className="flex items-center justify-between text-xs font-mono font-black text-slate-800 dark:text-slate-200">
-                      <span>Pipeline Progress</span>
+                    <div className="flex items-center justify-between text-xs font-mono font-black text-slate-900 dark:text-slate-200">
+                      <span>Pipeline Execution Progress</span>
                       <span className="text-indigo-700 dark:text-indigo-400">{Math.round(((scanStage + 1) / 5) * 100)}%</span>
                     </div>
-                    <div className="w-full h-3 bg-slate-300 dark:bg-slate-700/40 rounded-full overflow-hidden">
+                    <div className="w-full h-3 bg-slate-300 dark:bg-slate-700/50 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-indigo-600 transition-all duration-300 ease-out rounded-full"
                         style={{ width: `${((scanStage + 1) / 5) * 100}%` }}
                       />
                     </div>
-                    <p className="text-xs font-mono font-bold pt-1 text-slate-800 dark:text-slate-300">
-                      {osintPipelineSteps[scanStage].title}: {osintPipelineSteps[scanStage].desc}
+                    <p className="text-xs font-mono font-bold pt-1 text-slate-900 dark:text-slate-200">
+                      Layer 0{scanStage + 1}: {osintPipelineSteps[scanStage].title} - {osintPipelineSteps[scanStage].desc}
                     </p>
                   </div>
                 </div>
               ) : analysisData ? (
                 <div className="space-y-8">
-                  {/* Executive Summary */}
+                  {/* Executive Summary Box (HIGH CONTRAST LIGHT/DARK FIX) */}
                   <div className={`p-6 sm:p-8 rounded-3xl border flex flex-wrap items-center justify-between gap-6 shadow-md ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900' : `${currentTheme.cardDark}${currentTheme.borderDark}`
+                    isLight ? 'bg-white border-slate-300 text-slate-950' : `${currentTheme.cardDark}${currentTheme.borderDark}`
                   }`}>
                     <div className="space-y-1">
                       <div className="flex items-center space-x-3">
-                        <h2 className="font-mono text-2xl font-black text-slate-950 dark:text-white">@{analysisData.username}</h2>
+                        {/* High Contrast Handle Text Fix */}
+                        <h2 className={`font-mono text-2xl sm:text-3xl font-black ${isLight ? 'text-slate-950' : 'text-white'}`}>
+                          @{analysisData.username}
+                        </h2>
                         <span className={`text-xs font-black px-3 py-1 rounded-full border ${
                           analysisData.summary.exposureLevel === 'HIGH' ? 'bg-rose-500/20 text-rose-700 dark:text-rose-400 border-rose-500/40' :
                           analysisData.summary.exposureLevel === 'MEDIUM' ? 'bg-amber-500/20 text-amber-800 dark:text-amber-400 border-amber-500/40' :
@@ -442,54 +446,72 @@ export default function TraceLensApp() {
                           {analysisData.summary.exposureLevel} RISK
                         </span>
                       </div>
-                      <p className={`text-xs font-medium ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                      <p className={`text-xs font-extrabold ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                         Audit completed at {new Date(analysisData.timestamp).toLocaleTimeString()}
                       </p>
                     </div>
 
                     <div className="flex items-center space-x-6 sm:space-x-10">
                       <div>
-                        <div className="text-3xl font-black text-slate-950 dark:text-white">{analysisData.summary.accountsFound}</div>
-                        <div className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Endpoints</div>
+                        <div className={`text-3xl font-black ${isLight ? 'text-slate-950' : 'text-white'}`}>
+                          {analysisData.summary.accountsFound}
+                        </div>
+                        <div className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-slate-300'}`}>
+                          ENDPOINTS
+                        </div>
                       </div>
                       <div className="w-px h-10 bg-slate-300 dark:bg-slate-700" />
                       <div>
                         <div className="text-3xl font-black text-amber-600 dark:text-amber-400">
                           {Object.values(verifiedMap).filter(Boolean).length} / {analysisData.profiles.length}
                         </div>
-                        <div className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Verified</div>
+                        <div className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-slate-300'}`}>
+                          VERIFIED
+                        </div>
                       </div>
                       <div className="w-px h-10 bg-slate-300 dark:bg-slate-700" />
                       <div>
-                        <div className="text-3xl font-black text-indigo-700 dark:text-indigo-400">{analysisData.summary.exposureScore}/100</div>
-                        <div className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Exposure</div>
+                        <div className="text-3xl font-black text-indigo-700 dark:text-indigo-400">
+                          {analysisData.summary.exposureScore}/100
+                        </div>
+                        <div className={`text-xs font-black uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-slate-300'}`}>
+                          EXPOSURE
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 5-Layer OSINT View Steps */}
+                  {/* 5-Layer OSINT Audit Pipeline Breakdown (CLIENT DEMO STRUCTURE) */}
                   <div className={`p-6 sm:p-8 rounded-3xl border space-y-6 ${
                     isLight ? 'bg-white border-slate-300' : `${currentTheme.cardDark}${currentTheme.borderDark}`
                   }`}>
-                    <div className="border-b pb-4 border-slate-300 dark:border-slate-800">
-                      <h2 className={`text-xl font-black flex items-center space-x-2 ${isLight ? 'text-slate-900' : currentTheme.headingText}`}>
-                        <Layers className="w-6 h-6" />
+                    <div className="border-b pb-4 border-slate-300 dark:border-slate-800 flex items-center justify-between">
+                      <h2 className={`text-xl font-black flex items-center space-x-2 ${isLight ? 'text-slate-950' : currentTheme.headingText}`}>
+                        <Layers className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                         <span>5-Layer OSINT Audit Pipeline Breakdown</span>
                       </h2>
+                      <span className="text-xs font-bold font-mono px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 border border-emerald-500/40">
+                        ✓ All 5 Layers Executed
+                      </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                      {osintPipelineSteps.map((step, idx) => (
-                        <div key={step.title} className={`p-4 rounded-2xl border ${
-                          isLight ? 'bg-slate-50 border-slate-300' : 'bg-slate-900/60 border-slate-800'
+                      {osintPipelineSteps.map((step) => (
+                        <div key={step.id} className={`p-4 rounded-2xl border transition-all ${
+                          isLight ? 'bg-slate-50 border-slate-300' : 'bg-slate-900/80 border-slate-800'
                         }`}>
-                          <div className="text-xs font-mono font-black text-indigo-700 dark:text-indigo-400 mb-1">
-                            LAYER 0{idx + 1}
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[11px] font-mono font-black text-indigo-700 dark:text-indigo-400">
+                              LAYER 0{step.id}
+                            </span>
+                            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">
+                              Active
+                            </span>
                           </div>
-                          <div className={`text-xs font-black mb-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
-                            {step.title.split('.')[1]}
+                          <div className={`text-xs font-black mb-1 ${isLight ? 'text-slate-950' : 'text-white'}`}>
+                            {step.title}
                           </div>
-                          <div className={`text-[11px] font-medium leading-tight ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                          <div className={`text-[11px] font-semibold leading-relaxed ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                             {step.desc}
                           </div>
                         </div>
@@ -504,10 +526,10 @@ export default function TraceLensApp() {
                     <div className="flex items-center justify-between border-b pb-4 border-slate-300 dark:border-slate-800">
                       <div>
                         <h2 className={`text-xl font-black flex items-center space-x-2 ${isLight ? 'text-slate-950' : currentTheme.headingText}`}>
-                          <Network className="w-6 h-6" />
+                          <Network className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                           <span>Interactive Identity Node Graph</span>
                         </h2>
-                        <p className={`text-xs mt-1 font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                        <p className={`text-xs mt-1 font-semibold ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                           Hover over nodes to inspect platform endpoints and verification status.
                         </p>
                       </div>
@@ -535,7 +557,7 @@ export default function TraceLensApp() {
                           );
                         })}
 
-                        {/* Center Target Node */}
+                        {/* Center Node */}
                         <g className="cursor-pointer">
                           <circle cx={250} cy={140} r={30} fill="#6366f1" className="animate-pulse opacity-90" />
                           <circle cx={250} cy={140} r={24} fill="#4f46e5" />
@@ -607,7 +629,7 @@ export default function TraceLensApp() {
                         <FileCheck className="w-6 h-6" />
                         <span>Manual Indicators & Correlation Checklist</span>
                       </h2>
-                      <p className={`text-xs mt-1 font-medium ${isLight ? 'text-slate-700' : 'text-slate-300'}`}>
+                      <p className={`text-xs mt-1 font-semibold ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                         Review platform-specific metadata signals to verify identity ownership.
                       </p>
                     </div>
@@ -625,7 +647,7 @@ export default function TraceLensApp() {
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className={`font-black text-base ${isLight ? 'text-indigo-800' : 'text-indigo-400'}`}>{p.platform}</span>
+                              <span className={`font-black text-base ${isLight ? 'text-indigo-900' : 'text-indigo-400'}`}>{p.platform}</span>
                               <button
                                 onClick={() => toggleVerifiedStatus(p.id)}
                                 className={`text-xs px-3 py-1 rounded-full font-mono font-bold border transition-all ${
@@ -638,12 +660,12 @@ export default function TraceLensApp() {
                               </button>
                             </div>
 
-                            <div className={`font-mono text-sm font-bold ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
+                            <div className={`font-mono text-sm font-bold ${isLight ? 'text-slate-950' : 'text-slate-200'}`}>
                               @{p.username}
                             </div>
 
                             <div className="space-y-2.5 pt-3 border-t border-slate-300 dark:border-slate-700/50 text-xs">
-                              <span className={`text-[11px] font-black uppercase tracking-wider block ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
+                              <span className={`text-[11px] font-black uppercase tracking-wider block ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
                                 Verification Checklist:
                               </span>
                               
@@ -657,13 +679,13 @@ export default function TraceLensApp() {
                                   key={ind.key}
                                   onClick={() => toggleChecklist(p.id, ind.key)}
                                   className={`flex items-center space-x-3 cursor-pointer transition font-bold text-xs ${
-                                    isLight ? 'text-slate-800 hover:text-slate-950' : 'text-slate-200 hover:text-white'
+                                    isLight ? 'text-slate-900 hover:text-black' : 'text-slate-200 hover:text-white'
                                   }`}
                                 >
                                   {pCheck[ind.key] ? (
                                     <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                                   ) : (
-                                    <Square className="w-4 h-4 text-slate-400" />
+                                    <Square className="w-4 h-4 text-slate-500" />
                                   )}
                                   <span>{ind.label}</span>
                                 </div>
@@ -684,7 +706,7 @@ export default function TraceLensApp() {
               <h2 className={`text-2xl font-black ${isLight ? 'text-slate-950' : 'text-white'}`}>OSINT Audit History</h2>
               {history.length === 0 ? (
                 <div className={`p-8 text-center rounded-2xl border text-sm font-medium ${
-                  isLight ? 'bg-white border-slate-300 text-slate-700' : `${currentTheme.cardDark}${currentTheme.borderDark} text-slate-400`
+                  isLight ? 'bg-white border-slate-300 text-slate-800' : `${currentTheme.cardDark}${currentTheme.borderDark} text-slate-300`
                 }`}>
                   No prior audits recorded in history.
                 </div>
@@ -702,11 +724,11 @@ export default function TraceLensApp() {
                       }`}
                     >
                       <div>
-                        <div className={`font-mono font-bold text-base ${isLight ? 'text-indigo-800' : 'text-indigo-400'}`}>@{item.username}</div>
-                        <div className={`text-xs mt-1 font-medium ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>Audited on {item.date}</div>
+                        <div className={`font-mono font-bold text-base ${isLight ? 'text-indigo-900' : 'text-indigo-400'}`}>@{item.username}</div>
+                        <div className={`text-xs mt-1 font-semibold ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>Audited on {item.date}</div>
                       </div>
                       <div className="flex items-center space-x-6 text-sm font-black">
-                        <span className={isLight ? 'text-slate-800' : 'text-slate-300'}>{item.accounts} Endpoints</span>
+                        <span className={isLight ? 'text-slate-900' : 'text-slate-200'}>{item.accounts} Endpoints</span>
                         <span className="text-amber-600 dark:text-amber-400">{item.score}/100 Exposure Score</span>
                       </div>
                     </div>
@@ -718,10 +740,10 @@ export default function TraceLensApp() {
 
           {currentView === 'about' && (
             <div className={`p-6 sm:p-8 rounded-3xl border space-y-4 text-sm leading-relaxed max-w-3xl mx-auto ${
-              isLight ? 'bg-white border-slate-300 text-slate-900' : `${currentTheme.cardDark}${currentTheme.borderDark}`
+              isLight ? 'bg-white border-slate-300 text-slate-950' : `${currentTheme.cardDark}${currentTheme.borderDark}`
             }`}>
-              <h2 className={`text-2xl font-black ${isLight ? 'text-indigo-800' : 'text-indigo-400'}`}>TraceLens OSINT Methodology</h2>
-              <p className={`font-medium ${isLight ? 'text-slate-800' : 'text-slate-300'}`}>
+              <h2 className={`text-2xl font-black ${isLight ? 'text-indigo-900' : 'text-indigo-400'}`}>TraceLens OSINT Methodology</h2>
+              <p className={`font-semibold ${isLight ? 'text-slate-900' : 'text-slate-200'}`}>
                 TraceLens implements a 5-layer Open Source Intelligence (OSINT) framework designed for cross-platform handle correlation, manual indicator validation, digital footprint mapping, and privacy risk hardening.
               </p>
             </div>
